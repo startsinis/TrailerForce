@@ -32,6 +32,6 @@ JUCE licenses are separate from this source. Review the included JUCE license an
 
 ## GitHub Actions
 
-Push to main or run workflow_dispatch. The core job uses AddressSanitizer and UndefinedBehaviorSanitizer. Native jobs compile and test independently on macOS and Windows. Mac packaging verifies signatures and universal slices; auval validates both AU types. Installers and raw bundles are uploaded separately. A successful `v*` tag build publishes prerelease installers.
+Push to main or run workflow_dispatch. The core job uses AddressSanitizer and UndefinedBehaviorSanitizer. Native jobs compile and test independently on macOS and Windows. Mac packaging verifies signatures and universal slices; auval validates both AU types. Installers and raw bundles are uploaded separately. Successful main builds publish uniquely numbered prereleases; `v*` tag builds use the supplied tag. Each release is tied to the exact tested commit.
 
 No Mac/Windows binary is considered validated merely because a source file or packaging script exists. Inspect the actual workflow result and complete the DAW checklist before calling a release production ready.

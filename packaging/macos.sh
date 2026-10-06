@@ -11,7 +11,7 @@ cp -R "$BUILD/TrailerForceMidi_artefacts/Release/AU/Trailer Force MIDI FX.compon
 for BUNDLE in "$ROOT/Library/Audio/Plug-Ins/VST3/Trailer Force.vst3" "$ROOT/Library/Audio/Plug-Ins/Components/Trailer Force.component" "$ROOT/Library/Audio/Plug-Ins/Components/Trailer Force MIDI FX.component"; do
   codesign --force --deep --sign - "$BUNDLE"
   codesign --verify --deep --strict "$BUNDLE"
-  BIN=$(find "$BUNDLE/Contents/MacOS" -type f -maxdepth 1 -print -quit)
+  BIN=$(find "$BUNDLE/Contents/MacOS" -type f -print -quit)
   lipo -verify_arch x86_64 arm64 "$BIN"
 done
 cp docs/USER-MANUAL.md "$ROOT/Library/Application Support/Vinci Sounds/Trailer Force/"

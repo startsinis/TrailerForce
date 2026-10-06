@@ -25,7 +25,7 @@ Native JUCE trailer-composition plug-in. **Not a web app.** Generates playable, 
 
 ## Download / install
 
-Open [GitHub Actions](https://github.com/startsinis/TrailerForce/actions), choose a **successful** build, and download the installer artifact for your OS. Tagged `v*` builds also publish prerelease installers on [Releases](https://github.com/startsinis/TrailerForce/releases).
+Open [GitHub Actions](https://github.com/startsinis/TrailerForce/actions), choose a **successful** build, and download the installer artifact for your OS. Successful main and tagged `v*` builds publish prerelease installers on [Releases](https://github.com/startsinis/TrailerForce/releases).
 
 Installers are development builds: macOS bundles are ad-hoc signed, but the PKG is not Developer ID signed/notarized; Windows is not Authenticode signed. Platform trust prompts may appear. No claim of public-release certification is made.
 

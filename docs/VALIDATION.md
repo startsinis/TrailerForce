@@ -5,7 +5,8 @@
 - Portable parser checks: sharp/flat key, mode, BPM, meter, numeric and written act lengths.
 - 120 style/mode/meter combinations with nonempty lanes, note bounds and valid MIDI values.
 - Deterministic seeded composition, ordered events, note clipping through breaks, lane exclusion, pattern length, invalid-value sanitisation.
-- MIDI type-1 header/track counts, individual-lane export; six non-silent procedural WAV gestures.
+- MIDI type-1 header/track counts and individual-lane export; independent Python SMF decoding checks all track chunks, end positions, note-on/off pairs and markers; six non-silent procedural WAV gestures.
+- Block scheduling regression checks at 32/64/512/2048 sample buffers, exact loop-end note-offs, solo filtering and humanized break boundaries.
 - Native compilation in GitHub Actions for Windows VST3 and universal macOS VST3/AU/AU MIDI FX.
 - auval for AU instrument and AU MIDI FX; universal-slice verification and ad-hoc signature checks.
 
