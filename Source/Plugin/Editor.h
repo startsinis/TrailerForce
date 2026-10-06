@@ -31,7 +31,7 @@ private:
  juce::LookAndFeel_V4 look;
  juce::TabbedComponent tabs{juce::TabbedButtonBar::TabsAtTop};
  tf::Settings previousVariation;bool hasPreviousVariation=false;
- std::array<Form*,9> forms{};
+ std::array<Form*,10> forms{};
  juce::TextEditor *brief=nullptr,*interpretation=nullptr,*guide=nullptr,*production=nullptr;
  juce::Label status,transport;
  juce::TextButton generateButton{"GENERATE MIDI"},variationButton{"NEW VARIATION"},auditionButton{"AUDITION"},stopButton{"STOP / PANIC"},saveButton{"SAVE MIDI"};

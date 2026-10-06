@@ -79,12 +79,12 @@ void TrailerForceProcessor::processBlock(juce::AudioBuffer<float>& audio,juce::M
  expectedHostBeat=ppq+samples*beatsPerSample;wasHost=useHost;wasRunning=running;wasAudition=aud;lastSolo=solo;
 }
 void TrailerForceProcessor::getStateInformation(juce::MemoryBlock& dest) {
- auto s=settings();juce::ValueTree root("TrailerForceState");root.setProperty("version",3,nullptr);root.addChild(parameters.copyState(),-1,nullptr);
+ auto s=settings();juce::ValueTree root("TrailerForceState");root.setProperty("version",4,nullptr);root.addChild(parameters.copyState(),-1,nullptr);
  auto put=[&](const char* key,juce::var value){root.setProperty(key,value,nullptr);};
  put("brief",juce::String(s.brief));put("mood",juce::String(s.mood));put("instruments",juce::String(s.instruments));
  #define TF_SAVE(x) put(#x,s.x)
  TF_SAVE(style);TF_SAVE(key);TF_SAVE(mode);TF_SAVE(numerator);TF_SAVE(denominator);TF_SAVE(bpm);TF_SAVE(density);TF_SAVE(complexity);TF_SAVE(variation);TF_SAVE(humanize);put("seed",static_cast<juce::int64>(s.seed));TF_SAVE(breaks);TF_SAVE(button);TF_SAVE(hostSync);TF_SAVE(fullArrangement);TF_SAVE(selectedAct);TF_SAVE(selectedLane);TF_SAVE(patternBars);TF_SAVE(editEvery);TF_SAVE(atmosphere);TF_SAVE(motion);TF_SAVE(darkness);TF_SAVE(soundIntensity);TF_SAVE(soundLength);TF_SAVE(climax);TF_SAVE(soundType);TF_SAVE(harmony);TF_SAVE(groove);TF_SAVE(swing);TF_SAVE(gate);TF_SAVE(smartLayers);TF_SAVE(finalLift);TF_SAVE(expression);
- TF_SAVE(procedural);TF_SAVE(exploration);TF_SAVE(randomScope);
+ TF_SAVE(extendedIdeas);TF_SAVE(styleFidelity);TF_SAVE(development);TF_SAVE(referenceDirection);TF_SAVE(procedural);TF_SAVE(exploration);TF_SAVE(randomScope);
  put("generation",juce::String(std::to_string(s.generation)));
  for(int i=0;i<3;++i){root.setProperty("ideaSeed"+juce::String(i),static_cast<juce::int64>(s.ideaSeeds[size_t(i)]),nullptr);root.setProperty("ideaLock"+juce::String(i),s.ideaLocks[size_t(i)],nullptr);}
  #undef TF_SAVE
@@ -97,7 +97,7 @@ void TrailerForceProcessor::setStateInformation(const void* data,int bytes) {
  auto root=juce::ValueTree::fromXml(*xml);auto s=tf::Settings{};
  #define TF_LOAD(x,type) s.x=static_cast<type>(root.getProperty(#x,s.x))
  TF_LOAD(style,int);TF_LOAD(key,int);TF_LOAD(mode,int);TF_LOAD(numerator,int);TF_LOAD(denominator,int);TF_LOAD(bpm,double);TF_LOAD(density,double);TF_LOAD(complexity,double);TF_LOAD(variation,double);TF_LOAD(humanize,double);s.seed=uint32_t(static_cast<juce::int64>(root.getProperty("seed",42)));TF_LOAD(breaks,bool);TF_LOAD(button,bool);TF_LOAD(hostSync,bool);TF_LOAD(fullArrangement,bool);TF_LOAD(selectedAct,int);TF_LOAD(selectedLane,int);TF_LOAD(patternBars,int);TF_LOAD(editEvery,int);TF_LOAD(atmosphere,double);TF_LOAD(motion,double);TF_LOAD(darkness,double);TF_LOAD(soundIntensity,double);TF_LOAD(soundLength,double);TF_LOAD(climax,double);TF_LOAD(soundType,int);TF_LOAD(harmony,int);TF_LOAD(groove,int);TF_LOAD(swing,double);TF_LOAD(gate,double);TF_LOAD(smartLayers,bool);TF_LOAD(finalLift,bool);TF_LOAD(expression,bool);
- TF_LOAD(exploration,double);TF_LOAD(randomScope,int);
+ s.extendedIdeas=bool(root.getProperty("extendedIdeas",false));TF_LOAD(styleFidelity,double);TF_LOAD(development,double);TF_LOAD(referenceDirection,int);TF_LOAD(exploration,double);TF_LOAD(randomScope,int);
  s.procedural=bool(root.getProperty("procedural",false));
  s.generation=root.getProperty("generation","0").toString().getLargeIntValue();
  for(int i=0;i<3;++i){s.ideaSeeds[size_t(i)]=uint32_t(static_cast<juce::int64>(root.getProperty("ideaSeed"+juce::String(i),static_cast<juce::int64>(s.ideaSeeds[size_t(i)]))));s.ideaLocks[size_t(i)]=bool(root.getProperty("ideaLock"+juce::String(i),false));}

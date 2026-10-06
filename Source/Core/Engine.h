@@ -18,6 +18,9 @@ struct Settings {
   uint32_t seed=42;
   bool procedural=true;
   double exploration=.65;
+  bool extendedIdeas=true;
+  double styleFidelity=.85,development=.5;
+  int referenceDirection=0;
   int randomScope=0; // All, melody, harmony, rhythm
   uint64_t generation=0;
   std::array<uint32_t,3> ideaSeeds{42,137,971};
@@ -44,6 +47,8 @@ struct BriefResult { Settings settings; std::string report; };
 Settings sanitise(Settings);
 Settings preset(int);
 Settings newVariation(Settings);
+Settings applyReference(Settings,int);
+inline constexpr std::array<const char*,17> referenceNames{"Custom / selected genre","Dark Cycle direction","Splintered Mask direction","Bound By Fate direction","Marked For Death direction","Flashpoint direction","Prowler direction","Slice And Dice direction","Breaking Point direction","Man Without Fear direction","Kill The Lights direction","The Moon Haunts direction","Into The Fray direction","Doom Reigns direction","Symbiote direction","Shattered Flux direction","Code Runner direction"};
 BriefResult parseBrief(const std::string&, const Settings&);
 Sequence generate(const Settings&);
 Sequence soundGesture(const Settings&);

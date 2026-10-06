@@ -16,6 +16,7 @@ Settings sanitise(Settings s) {
   if(s.denominator!=4 && s.denominator!=8) s.denominator=4;
   for(auto& b:s.bars) b=std::clamp(b,1,32);
   for(auto p:{&s.density,&s.complexity,&s.variation,&s.humanize,&s.atmosphere,&s.motion,&s.darkness,&s.soundIntensity,&s.climax}) *p=std::clamp(finite(*p,.5),0.,1.);
+  s.styleFidelity=std::clamp(finite(s.styleFidelity,.85),0.,1.);s.development=std::clamp(finite(s.development,.5),0.,1.);s.referenceDirection=std::clamp(s.referenceDirection,0,16);
   s.exploration=std::clamp(finite(s.exploration,.65),0.,1.);s.randomScope=std::clamp(s.randomScope,0,3);
   s.harmony=std::clamp(s.harmony,0,5);s.groove=std::clamp(s.groove,0,3);
   s.swing=std::clamp(finite(s.swing,0),0.,.45);s.gate=std::clamp(finite(s.gate,.65),.2,1.2);
@@ -104,7 +105,7 @@ Sequence generate(const Settings& input) {
   };
   auto roots=idea.roots;
   const std::array<std::array<int,4>,5> harmonies{{{{0,5,2,6}},{{0,4,5,3}},{{0,3,5,4}},{{0,0,5,0}},{{0,6,5,6}}}};
-  if(s.harmony>0)roots=harmonies[size_t(s.harmony-1)];
+  if(s.harmony>0)for(int i=0;i<8;++i)roots[size_t(i)]=harmonies[size_t(s.harmony-1)][size_t(i%4)];
   std::array<int,3> previous{pitch(0,4),pitch(2,4),pitch(4,4)};
   auto voicing=[&](int root){
     std::array<int,3> best=previous;int score=100000;
@@ -137,7 +138,7 @@ Sequence generate(const Settings& input) {
       const double cut=(s.breaks && edit && !final)?base+bpb-std::min(1.,bpb*.25):base+bpb;
       if(edit)q.markers.push_back({base+bpb,"EDIT / BAR "+std::to_string(startBar+bar+2)});
       if(cut<base+bpb)q.markers.push_back({cut,"BREAK"});
-      const int root=roots[size_t((bar/pr.harmonyBars)%4)];
+      const int root=roots[size_t((bar/pr.harmonyBars)%idea.rootCount)];
       auto clip=[&](double at,double len){return std::max(.005,std::min(len,cut-at-.005));};
       auto active=[&](int lane){
         if(!s.smartLayers)return true;
@@ -161,7 +162,7 @@ Sequence generate(const Settings& input) {
         const int mask=(s.groove==3?int(step*4./3.):step)%16;
         double at=base+step*grid+((step%2 && s.groove!=3)?s.swing*grid:0.);
         if(at>=cut-.01)continue;
-        const int cellIndex=mask+(bar%2)*16;
+        const int cellIndex=mask+(bar%idea.phraseBars)*16;
         char rhythm=idea.rhythm[size_t(cellIndex)];
         bool hit=rhythm=='X' || (rhythm=='x' && cellChance(step,bar,1)<density);
         if(hit && active(Ostinato)){
@@ -180,7 +181,7 @@ Sequence generate(const Settings& input) {
           if(!restrained && step%2==0 && act>0 && cellChance(step,bar,2)<density)add(Percussion,at,clip(at,.06),42,int(35+energy*25)+(step%4==0?10:0));
         }
         if(active(Bass) && (idea.kick[size_t(cellIndex)]=='X' || step==0)){
-          double next=bpb;for(int j=step+1;j<steps;++j){int m=(s.groove==3?int(j*4./3.):j)%16;if(idea.kick[size_t(m+(bar%2)*16)]=='X'){next=j*grid;break;}}
+          double next=bpb;for(int j=step+1;j<steps;++j){int m=(s.groove==3?int(j*4./3.):j)%16;if(idea.kick[size_t(m+(bar%idea.phraseBars)*16)]=='X'){next=j*grid;break;}}
           add(Bass,at,clip(at,std::max(.05,next-(at-base)-.06)),pitch(root,2),int(60+energy*35));
         }
       }
@@ -188,11 +189,13 @@ Sequence generate(const Settings& input) {
       if(active(Motif) && (act>0 || bar%2==0)){
         int count=act==0?2:bar%2==0?idea.motifCount:2;
         for(int n=0;n<count;++n){
-          double at=base+n*bpb/(count+1);if(at>=cut-.01)continue;
-          int degree=s.procedural?idea.melody[size_t((n+(bar%2)*4)%8)]:pr.motif[size_t((n+(bar%2)*2)%4)];
+          const bool extended=s.procedural && s.extendedIdeas;
+          const int index=(bar%8)*4+n;
+          double at=base+(extended?idea.onset[size_t(index)]*bpb:n*bpb/(count+1));if(at>=cut-.01)continue;
+          int degree=s.procedural?idea.melody[size_t(extended?index:(n+(bar%2)*4)%8)]:pr.motif[size_t((n+(bar%2)*2)%4)];
           if(bar%4==3 && n==count-1 && s.variation>.5)degree=2;
           int octave=act==3 && s.finalLift && !restrained?6:5;
-          add(Motif,at,clip(at,bpb/(count+1)*.7),std::min(88,pitch(degree,octave)),int(57+energy*35)+(n==0?8:0));
+          add(Motif,at,clip(at,bpb/(count+1)*(extended?idea.duration[size_t(index)]:.7)),std::min(88,pitch(degree,octave)),int(57+energy*35)+(n==0?8:0));
         }
       }
       if(active(Chords))for(int note:voicing(root))add(Chords,base,clip(base,bpb*.92),note,int(40+energy*38));

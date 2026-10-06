@@ -34,3 +34,7 @@ These checks cannot be inferred from a successful compiler or auval run. Record 
 ## 0.3 generative checks
 
 Automated core checks require diverse melodic, harmonic and rhythmic MIDI across 64 variants with humanization disabled; exact all-lock output; rhythm-only isolation of melody and chords even at maximum humanization; repeatable variation recall; unchanged key, tempo and acts. Native CI additionally builds all targets and runs both AU validators. Listening and hands-on DAW routing tests remain manual release gates.
+
+## 0.4 coverage
+
+512 style/seed cases verify protected rhythm/kick anchors and ordered motif spacing at maximum exploration. All 16 reference directions generate MIDI. Phrase development changes exported motifs. Existing lock, isolation, bounds, 64-variant diversity and MIDI decoder tests remain active. Older two-bar mode is retained explicitly. No new live-DAW or listening certification is claimed.

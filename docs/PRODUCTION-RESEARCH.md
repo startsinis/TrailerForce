@@ -65,3 +65,9 @@ The built-in synth remains a sketch monitor. Realistic instruments, articulation
 ## Brand X Music reference, October 2026
 
 Official source: https://brandxmusic.bandcamp.com/album/chronos. Catalog identifies an orchestral motion-picture advertising library with hybrid, epic and trailer tags. Research was metadata-only; no audio was auditioned or transcribed. The new call/answer grammar, functional root choices and constrained rhythm mutation are original engineering choices, not measured attributes of this album.
+
+## 0.4 reference grounding
+
+Recovered the user's saved Reference_Analysis_Report.md, version 2, for Vinci Sounds Hybrid Arsenal. Its 16-track Sonoton BXML9045 metadata map is used for reference direction tempo/key and palette starting points. This is a cross-project reference requested by the user's direction to follow prior links. Live Sonoton retrieval timed out; no new listening analysis is claimed.
+
+Also rechecked Universal Production Music KOK2703, Neoclassical Trailer: https://www.universalproductionmusic.com/discover/albums/41480/neoclassical-trailer. Its description combines baroque keyboards and strings with cinematic builds, hits and sound design. The neoclassical generator accordingly retains dense subdivision anchors with arpeggiated pitches; this is an original implementation, not extracted notes. Brand X Chronos remains the broader orchestral/hybrid catalog reference. Reference resemblance still needs composer listening review.

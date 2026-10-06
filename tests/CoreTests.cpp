@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Profiles.h"
+#include "Generative.h"
 #include "Sound.h"
 #include "Playback.h"
 #include <cmath>
@@ -79,6 +80,18 @@ int main() { try {
  require(tf::midiFile(tf::generate(gen),tf::Chords)==tf::midiFile(tf::generate(rhythmOnly),tf::Chords),"rhythm scope preserves chords");
  require(gen.key==rhythmOnly.key && gen.bpm==rhythmOnly.bpm && gen.bars==rhythmOnly.bars,"randomization preserves brief constraints");
  require(tf::midiFile(tf::generate(rhythmOnly))==tf::midiFile(tf::generate(tf::newVariation(gen))),"variation recall deterministic");
+ // Extended grammar protects every strong genre anchor at maximum exploration.
+ for(int style=0;style<tf::styleCount;++style)for(int v=0;v<32;++v){
+   auto cfg=tf::preset(style);cfg.exploration=1;cfg.styleFidelity=1;cfg.generation=uint64_t(v);cfg=tf::newVariation(cfg);
+   auto dna=tf::designIdea(cfg,tf::profile(style));require(dna.phraseBars==8 && dna.rootCount==8,"extended phrase size");
+   for(int i=0;i<128;++i){if(tf::profile(style).rhythm[i%16]=='X')require(dna.rhythm[size_t(i)]=='X',"genre rhythm anchor");if(tf::profile(style).kick[i%16]=='X')require(dna.kick[size_t(i)]=='X',"genre kick anchor");}
+   for(int bar=0;bar<8;++bar)for(int n=1;n<4;++n)require(dna.onset[size_t(bar*4+n)]>dna.onset[size_t(bar*4+n-1)],"ordered motif rhythm");
+ }
+ for(int id=1;id<=16;++id){auto ref=tf::applyReference(tf::Settings{},id);require(ref.referenceDirection==id && ref.extendedIdeas && ref.procedural && !tf::generate(ref).notes.empty(),"reference direction generates MIDI");}
+ auto evolving=tf::preset(0);evolving.humanize=0;evolving.fullArrangement=false;evolving.selectedAct=2;evolving.patternBars=8;evolving.button=false;evolving.breaks=false;
+ auto stable=evolving;stable.development=0;evolving.development=1;
+ require(tf::midiFile(tf::generate(stable),tf::Motif)!=tf::midiFile(tf::generate(evolving),tf::Motif),"phrase development changes exported motif");
+ auto classic=evolving;classic.extendedIdeas=false;require(tf::designIdea(classic,tf::profile(classic.style)).phraseBars==2,"v3 grammar retained");
  auto ccFile=tf::midiFile(express);if(auto f=std::ofstream("test-expression.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(ccFile.data()),static_cast<std::streamsize>(ccFile.size()));
  if(auto f=std::ofstream("test-arrangement.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(data.data()),static_cast<std::streamsize>(data.size()));
  std::cout<<"PASS: brief parsing, 240 style/mode/meter combinations, determinism, bounds, breaks, mutes, MIDI and six audio gestures\n";

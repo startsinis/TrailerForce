@@ -62,3 +62,7 @@ Sixteen distinct profiles now drive rhythmic cells, kick/bass placement, harmoni
 ### 0.3 procedural composition
 
 Generative tab: new melodic calls/answers, harmonic journeys and two-bar grooves; independent melody/harmony/rhythm randomization; design locks; exploration control; previous-variation A/B; session recall. See the user manual for scope, lock semantics and Brand X catalog reference limitations.
+
+### 0.4 Style DNA
+
+Eight-bar generative development, style-fidelity and phrase-development controls, protected genre accents, and 16 reference starting directions from the saved Sonoton/Hybrid Arsenal map. Older generation modes remain recallable. The MIDI generator has no fixed bank limit; repeated output remains possible.

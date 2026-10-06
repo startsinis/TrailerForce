@@ -28,3 +28,7 @@ Reference: https://github.com/juce-framework/JUCE/blob/8.0.6/docs/CMake%20API.md
 ## Procedural design
 
 Generative.cpp separates melodic, harmonic and rhythmic design RNG streams. Settings store three seeds, design locks, scope, exploration and a 64-bit variation counter. newVariation hashes the counter and master seed into only the unlocked domain seeds. Engine uses independent per-lane performance RNGs in procedural mode so unrelated lane density cannot perturb a locked motif. Legacy mode retains the original sequential performance RNG. New state schema version 3 defaults old sessions to legacy mode.
+
+## Engine schema 4
+
+extendedIdeas selects the eight-bar grammar independently from the previous procedural switch. Old states default this flag off. Design arrays hold 32 melodic positions, eight roots and 128 rhythm/kick steps. Each domain retains its independent seed. All randomization stays on the message thread; audio scheduling is unchanged. Reference directions change starting constraints but never select recorded MIDI patterns.
