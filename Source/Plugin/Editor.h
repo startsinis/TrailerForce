@@ -33,7 +33,7 @@ private:
  std::array<Form*,7> forms{};
  juce::TextEditor *brief=nullptr,*interpretation=nullptr,*guide=nullptr;
  juce::Label status,transport;
- juce::TextButton generateButton{"GENERATE MIDI"},variationButton{"NEW VARIATION"},auditionButton{"AUDITION"},stopButton{"STOP / PANIC"},saveButton{"SAVE MIDI"},wavButton{"RENDER GESTURE WAV"};
+ juce::TextButton generateButton{"GENERATE MIDI"},variationButton{"NEW VARIATION"},auditionButton{"AUDITION"},stopButton{"STOP / PANIC"},saveButton{"SAVE MIDI"};
  juce::ToggleButton monitor{"Sketch sound"},follow{"DAW play"},solo{"Solo selected lane"};
  juce::Slider gain;
  juce::ComboBox lane;

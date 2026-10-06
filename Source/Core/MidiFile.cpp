@@ -17,7 +17,7 @@ void track(std::vector<uint8_t>& out,std::vector<ME> ev,uint32_t end) {
 }
 }
 std::vector<uint8_t> midiFile(const Sequence& s,int lane) {
- constexpr double ppq=960.; auto tick=[](double beat){return uint32_t(std::max(0.,std::round(beat*ppq)));};
+ constexpr double ppq=960.; auto tick=[ppq](double beat){return uint32_t(std::max(0.,std::round(beat*ppq)));};
  std::vector<uint8_t> out; tag(out,"MThd"); be(out,6,4); be(out,1,2); be(out,lane<0?laneCount+1:2,2); be(out,960,2);
  uint32_t tempo=uint32_t(60000000./s.bpm);
  std::vector<ME> conductor{{0,0,meta(3,"Trailer Force / Vinci Sounds")},{0,1,{255,81,3,uint8_t(tempo>>16),uint8_t(tempo>>8),uint8_t(tempo)}},{0,2,{255,88,4,uint8_t(s.numerator),uint8_t(s.denominator==8?3:2),24,8}}};

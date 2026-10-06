@@ -5,7 +5,7 @@ void Roll::paint(juce::Graphics& g) {
  if(sequence.beats<=0)return;
  double bpb=sequence.numerator*4./sequence.denominator;
  for(double b=0;b<=sequence.beats;b+=bpb){float x=float(r.getX()+r.getWidth()*b/sequence.beats);g.setColour(panel.brighter(.1f));g.drawVerticalLine(int(x),float(r.getY()),float(r.getBottom()));}
- for(auto& m:sequence.markers)if(m.text.rfind("ACT",0)==0){int x=r.getX()+int(r.getWidth()*m.beat/sequence.beats);g.setColour(sage);g.drawText(m.text,{x+3,r.getY(),190,16},juce::Justification::centredLeft);}
+ for(auto& m:sequence.markers)if(m.text.rfind("ACT",0)==0){int x=r.getX()+int(r.getWidth()*m.beat/sequence.beats);g.setColour(sage);g.drawText(m.text,juce::Rectangle<int>{x+3,r.getY(),190,16},juce::Justification::centredLeft);}
  auto notesArea=r.withTrimmedTop(22);
  for(auto& n:sequence.notes)if(lane<0 || n.lane==lane){float x=float(notesArea.getX()+notesArea.getWidth()*n.beat/sequence.beats);float w=float(std::max(2.,notesArea.getWidth()*n.length/sequence.beats));float y=float(notesArea.getBottom()-(n.pitch-12)/100.*notesArea.getHeight());g.setColour(juce::Colour::fromHSV(float(n.lane)/12.f,.35f,.95f,float(n.velocity)/150.f+.15f));g.fillRoundedRectangle(x,y,w,3.5f,1.f);}
  g.setColour(accent);int x=r.getX()+int(r.getWidth()*beat/sequence.beats);g.drawVerticalLine(x,float(r.getY()),float(r.getBottom()));
@@ -35,7 +35,7 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  lane.addItem("All lanes / multitrack",1);for(int i=0;i<tf::laneCount;++i)lane.addItem(tf::laneNames[size_t(i)],i+2);lane.setSelectedId(1);lane.onChange=[this]{roll.lane=lane.getSelectedId()-2;p.soloLane.store(solo.getToggleState()?roll.lane:-1);roll.repaint();};solo.onClick=[this]{p.soloLane.store(solo.getToggleState()?roll.lane:-1);};
  generateButton.onClick=[this]{commit();};variationButton.onClick=[this]{++working.seed;commit();};auditionButton.onClick=[this]{if(dirty)commit();p.setAudition(!p.isAuditioning());};stopButton.onClick=[this]{p.panic();if(auto* param=p.parameters.getParameter("run"))param->setValueNotifyingHost(0.f);};saveButton.onClick=[this]{exportMidi(false);};drag.beginDrag=[this]{exportMidi(true);};
  label(0,"Describe the cue. Include genre, mood, key, tempo and act lengths.",{20,8,1000,26});
- auto box=std::make_unique<juce::TextEditor>();box->setMultiLine(true);box->setReturnKeyStartsNewLine(true);box->setFont(17.f);box->setTextToShowWhenEmpty("Example: Dark hybrid in D minor, 120 BPM. Act one: 4 bars, act two: 8 bars, act three: 8 bars, act four: 4 bars. Strings, brass and metal. Button ending.",muted);brief=forms[0]->add(std::move(box),{20,40,1020,132});brief->onTextChange=[this]{if(!refreshing){working.brief=brief->getText().toStdString();changed();}};
+ auto box=std::make_unique<juce::TextEditor>();box->setMultiLine(true);box->setReturnKeyStartsNewLine(true);box->setFont(juce::Font(juce::FontOptions(17.f)));box->setInputRestrictions(16000);box->setTextToShowWhenEmpty("Example: Dark hybrid in D minor, 120 BPM. Act one: 4 bars, act two: 8 bars, act three: 8 bars, act four: 4 bars. Strings, brass and metal. Button ending.",muted);brief=forms[0]->add(std::move(box),{20,40,1020,132});brief->onTextChange=[this]{if(!refreshing){working.brief=brief->getText().toStdString();changed();}};
  auto interpretButton=std::make_unique<juce::TextButton>("INTERPRET BRIEF + GENERATE");interpretButton->onClick=[this]{auto result=tf::parseBrief(brief->getText().toStdString(),working);working=result.settings;interpretation->setText(result.report,false);commit();sync();};forms[0]->add(std::move(interpretButton),{20,182,290,34});
  juce::StringArray styleNames;for(auto n:tf::styles)styleNames.add(n);
  combo(0,"Style preset",{340,177,350,64},styleNames,[this]{return working.style;},[this](int v){auto old=working;working=tf::preset(v);working.brief=old.brief;working.seed=old.seed;sync();});
@@ -68,7 +68,7 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  slider(4,"Intensity",{310,20,330,64},0,1,.01,[this]{return working.soundIntensity;},[this](double v){working.soundIntensity=v;});
  slider(4,"Length / quarter-note beats",{680,20,360,64},.25,16,.25,[this]{return working.soundLength;},[this](double v){working.soundLength=v;});
  auto gesture=std::make_unique<juce::TextButton>("GENERATE ISOLATED GESTURE");gesture->onClick=[this]{commit(true);lane.setSelectedId(tf::Design+2);p.setAudition(true);};forms[4]->add(std::move(gesture),{20,110,370,36});
- forms[4]->add(std::make_unique<juce::TextButton>(""),{0,0,0,0});
+ 
  auto render=std::make_unique<juce::TextButton>("EXPORT GESTURE WAV");render->onClick=[this]{
   auto s=working;auto seq=tf::soundGesture(s);auto bytes=std::make_shared<std::vector<uint8_t>>(tf::renderWave(seq,s,tf::Design));
   chooser=std::make_unique<juce::FileChooser>("Save generated gesture",juce::File::getSpecialLocation(juce::File::userDocumentsDirectory).getChildFile("TrailerForce-"+juce::String(tf::soundNames[size_t(s.soundType)])+".wav"),"*.wav");
@@ -79,12 +79,12 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  slider(5,"Act III climax intensity",{20,25,480,70},0,1,.01,[this]{return working.climax;},[this](double v){working.climax=v;});
  auto build=std::make_unique<juce::TextButton>("BUILD CLIMAX LAYERS");build->onClick=[this]{working.enabled.fill(true);working.selectedAct=2;working.fullArrangement=false;working.density=std::max(.7,working.density);working.complexity=std::max(.65,working.complexity);working.climax=1.;commit();sync();};forms[5]->add(std::move(build),{560,52,400,40});
  text(5,"CLIMAX BUILDER\n\nBuild Climax Layers creates a focused Act III pattern with all nine lanes enabled. Set Pattern Bars in MIDI Designer, then export each lane to a dedicated instrument.\n\n1  Bass and percussion establish the low-end rhythm.\n2  Ostinato and pulse add motion.\n3  Motif and chords carry the hook and harmony.\n4  Atmosphere and sound design widen the arrangement.\n5  Transition notes accelerate into the edit.\n\nEnable Full Arrangement again to place this energy back into the four-act structure.",{20,140,1020,220});
- auto next=std::make_unique<juce::TextEditor>();next->setMultiLine(true);next->setReadOnly(true);next->setFont(16.f);guide=forms[6]->add(std::move(next),{20,20,1020,350});
+ auto next=std::make_unique<juce::TextEditor>();next->setMultiLine(true);next->setReadOnly(true);next->setFont(juce::Font(juce::FontOptions(16.f)));guide=forms[6]->add(std::move(next),{20,20,1020,350});
  setResizable(true,true);setResizeLimits(1120,850,1800,1200);setSize(1180,900);sync();commit();startTimerHz(20);
 }
 TrailerForceEditor::~TrailerForceEditor(){stopTimer();if(dirty)commit();p.soloLane.store(-1);setLookAndFeel(nullptr);}
 void TrailerForceEditor::changed(){dirty=true;lastEdit=juce::Time::getMillisecondCounterHiRes();}
-void TrailerForceEditor::commit(bool gesture){working=tf::sanitise(working);p.generate(working,gesture);dirty=false;seenRevision=p.revision.load();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);status.setText(juce::String(roll.sequence.notes.size())+" notes  |  "+juce::String(roll.sequence.beats*60./working.bpm,1)+" seconds at "+juce::String(working.bpm,1)+" BPM  |  Seed "+juce::String(working.seed),juce::dontSendNotification);roll.repaint();}
+void TrailerForceEditor::commit(bool gesture){working=tf::sanitise(working);p.generate(working,gesture);dirty=false;seenRevision=p.revision.load();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);status.setText(juce::String(static_cast<int>(roll.sequence.notes.size()))+" notes  |  "+juce::String(roll.sequence.beats*60./working.bpm,1)+" seconds at "+juce::String(working.bpm,1)+" BPM  |  Seed "+juce::String(working.seed),juce::dontSendNotification);roll.repaint();}
 void TrailerForceEditor::sync(){refreshing=true;for(auto& f:reload)f();brief->setText(working.brief,false);refreshing=false;}
 void TrailerForceEditor::timerCallback(){
  if(dirty && juce::Time::getMillisecondCounterHiRes()-lastEdit>220)commit();

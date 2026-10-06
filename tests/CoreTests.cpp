@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Sound.h"
+#include "Playback.h"
 #include <cmath>
 #include <iostream>
 #include <stdexcept>
@@ -30,6 +31,21 @@ int main() { try {
  auto single=tf::midiFile(q,tf::Bass);require(single[11]==2,"single lane export");
  s.bpm=std::numeric_limits<double>::quiet_NaN(); s.bars[0]=-5;require(tf::sanitise(s).bpm==120 && tf::sanitise(s).bars[0]==1,"bad state sanitised");
  for(int type=0;type<6;++type) {s=tf::preset(0);s.soundType=type;auto w=tf::renderWave(tf::soundGesture(s),s,tf::Design,8000);require(w.size()>44 && w[0]=='R',"WAV output");bool nonzero=false;for(size_t i=44;i<w.size();++i)nonzero|=w[i]!=0;require(nonzero,"sound is audible");}
+ // Test block scheduling at exact loop boundaries for common buffer sizes.
+ tf::Sequence loop;loop.beats=4;loop.notes={{0,4,60,100,1,0}};auto loopEvents=tf::events(loop);
+ for(int block:{32,64,512,2048}) {
+   int on=0,off=0;bool boundaryOff=false;
+   // 0.5 beat/block ensures exact loop boundaries, independent of buffer size.
+   for(int k=0;k<17;++k)tf::schedule(loopEvents.data(),loopEvents.size(),4,k*.5,.5/block,block,-1,[&](const tf::Event& e,int offset){
+    require(offset>=0 && offset<block,"sample offset bounds");
+    if((e.status&240)==0x90)++on;else {++off;if(k==8 && offset==0)boundaryOff=true;}
+   });
+   require(on==3 && off==3 && boundaryOff,"loop-boundary note-off");
+ }
+ int isolated=0;tf::schedule(loopEvents.data(),loopEvents.size(),4,0,.01,100,tf::Bass,[&](const tf::Event&,int){++isolated;});require(isolated==0,"solo scheduler filter");
+ // Humanization may not leak into edit breaks.
+ s=tf::preset(0);s.humanize=1;auto human=tf::generate(s);
+ for(auto& marker:human.markers)if(marker.text=="BREAK")for(auto& n:human.notes)require(!(n.beat<marker.beat+1 && n.beat+n.length>marker.beat+1.e-8),"humanized break");
  if(auto f=std::ofstream("test-arrangement.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(data.data()),static_cast<std::streamsize>(data.size()));
  std::cout<<"PASS: brief parsing, 120 style/mode/meter combinations, determinism, bounds, breaks, mutes, MIDI and six audio gestures\n";
  }catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<"\n";return 1;} }

@@ -1,5 +1,6 @@
 #include "Processor.h"
 #include "Editor.h"
+#include "Playback.h"
 #include <cmath>
 TrailerForceProcessor::TrailerForceProcessor()
  : AudioProcessor(BusesProperties()
@@ -61,20 +62,9 @@ void TrailerForceProcessor::processBlock(juce::AudioBuffer<float>& audio,juce::M
  const double start=useHost?ppq:internalBeat;
  if(running && live->beats>0) {
   const double end=start+samples*beatsPerSample;
-  const auto firstCycle=static_cast<int64_t>(std::floor(start/live->beats));
-  const auto lastCycle=static_cast<int64_t>(std::floor(end/live->beats));
-  // Bound unusual host positions/tempo jumps to this block; binary search avoids scanning the song.
-  for(auto cycle=firstCycle;cycle<=lastCycle && cycle<=firstCycle+2;++cycle) {
-   double origin=cycle*live->beats;
-   auto begin=std::lower_bound(live->events.begin(),live->events.begin()+static_cast<std::ptrdiff_t>(live->count),start-origin,[](const tf::Event& e,double b){return e.beat<b;});
-   for(auto it=begin;it!=live->events.begin()+static_cast<std::ptrdiff_t>(live->count);++it) {
-    double at=it->beat+origin;if(at>=end)break;if(at<start)continue;
-    int channel=(it->status&15)+1;
-    if(solo>=0 && channel!=tf::channels[size_t(solo)])continue;
-    int offset=juce::jlimit(0,samples-1,int(std::floor((at-start)/beatsPerSample+1e-7)));
-    const uint8_t bytes[]{it->status,it->data1,it->data2};midi.addEvent(bytes,3,offset);
-   }
-  }
+  tf::schedule(live->events.data(),live->count,live->beats,start,beatsPerSample,samples,solo,[&](const tf::Event& e,int offset){
+    const uint8_t bytes[]{e.status,e.data1,e.data2};midi.addEvent(bytes,3,offset);
+  });
   internalBeat=end;playBeat.store(std::fmod(std::fmod(start,live->beats)+live->beats,live->beats));
  } else playBeat.store(0);
  synth.configure(live->darkness,live->motion,live->seconds*live->bpm/tempo);
