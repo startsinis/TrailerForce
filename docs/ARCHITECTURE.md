@@ -24,3 +24,7 @@ Add a style through `preset`, add recognisers to `parseBrief`, add generators to
 Two JUCE targets avoid incompatible AU roles. `TrailerForce` is an instrument with MIDI input/output and an audio output bus (VST3 plus AU on macOS). `TrailerForceMidi` is a true `IS_MIDI_EFFECT` AU, built with no audio buses and a separate plug-in code. JUCE maps MIDI effects to Apple's `aumi` type; the regular synth uses `aumu`.
 
 Reference: https://github.com/juce-framework/JUCE/blob/8.0.6/docs/CMake%20API.md and https://developer.apple.com/documentation/audiotoolbox/kaudiounittype_midiprocessor
+
+## Procedural design
+
+Generative.cpp separates melodic, harmonic and rhythmic design RNG streams. Settings store three seeds, design locks, scope, exploration and a 64-bit variation counter. newVariation hashes the counter and master seed into only the unlocked domain seeds. Engine uses independent per-lane performance RNGs in procedural mode so unrelated lane density cannot perturb a locked motif. Legacy mode retains the original sequential performance RNG. New state schema version 3 defaults old sessions to legacy mode.

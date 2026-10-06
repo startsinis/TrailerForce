@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Profiles.h"
+#include "Generative.h"
 #include <algorithm>
 #include <cmath>
 #include <random>
@@ -15,6 +16,7 @@ Settings sanitise(Settings s) {
   if(s.denominator!=4 && s.denominator!=8) s.denominator=4;
   for(auto& b:s.bars) b=std::clamp(b,1,32);
   for(auto p:{&s.density,&s.complexity,&s.variation,&s.humanize,&s.atmosphere,&s.motion,&s.darkness,&s.soundIntensity,&s.climax}) *p=std::clamp(finite(*p,.5),0.,1.);
+  s.exploration=std::clamp(finite(s.exploration,.65),0.,1.);s.randomScope=std::clamp(s.randomScope,0,3);
   s.harmony=std::clamp(s.harmony,0,5);s.groove=std::clamp(s.groove,0,3);
   s.swing=std::clamp(finite(s.swing,0),0.,.45);s.gate=std::clamp(finite(s.gate,.65),.2,1.2);
   s.soundLength=std::clamp(finite(s.soundLength,4),.25,16.);
@@ -82,23 +84,25 @@ BriefResult parseBrief(const std::string& text, const Settings& previous) {
 }
 static const int scales[5][7]={{0,2,3,5,7,8,10},{0,2,4,5,7,9,11},{0,2,3,5,7,9,10},{0,1,3,5,7,8,10},{0,2,3,5,7,8,11}};
 Sequence generate(const Settings& input) {
-  const auto s=sanitise(input); const auto& pr=profile(s.style);
+  const auto s=sanitise(input); const auto& pr=profile(s.style); const auto idea=designIdea(s,pr);
   Sequence q; q.bpm=s.bpm; q.numerator=s.numerator; q.denominator=s.denominator;
   const double bpb=s.beatsPerBar();
   int totalBars=0; for(int b:s.bars)totalBars+=b;
   if(!s.fullArrangement)totalBars=s.patternBars;
   q.beats=totalBars*bpb;
+  std::array<std::mt19937,laneCount> laneRng;for(int i=0;i<laneCount;++i)laneRng[size_t(i)].seed(s.seed+uint32_t(i)*7919);
   std::mt19937 rng(s.seed);auto random=[&](){return double(rng())/double(std::mt19937::max());};
   // Rhythm choices repeat as two-bar cells. Humanisation never changes the cell.
   auto cellChance=[&](int step,int bar,int salt){uint32_t x=s.seed+uint32_t(step*137+(bar%2)*977+salt*3701);x^=x>>16;x*=0x7feb352d;x^=x>>15;return (x%10000)/10000.;};
   auto pitch=[&](int degree,int octave){int oct=degree/7,d=degree%7;if(d<0){d+=7;--oct;}return std::clamp(12*octave+s.key+scales[s.mode][d]+12*oct,0,127);};
   auto add=[&](int lane,double beat,double length,int note,int velocity,bool exact=false){
     if(!s.enabled[size_t(lane)])return;
-    beat=std::clamp(beat+(exact?0.:(random()-.5)*.06*s.humanize),0.,q.beats-.01);
+    auto draw=[&](){return s.procedural?double(laneRng[size_t(lane)]())/4294967296.:random();};
+    beat=std::clamp(beat+(exact?0.:(draw()-.5)*.06*s.humanize),0.,q.beats-.01);
     length=std::clamp(length,.01,q.beats-beat);
-    q.notes.push_back({beat,length,std::clamp(note,0,127),std::clamp(velocity+int((random()-.5)*14*s.humanize),1,127),channels[size_t(lane)],lane});
+    q.notes.push_back({beat,length,std::clamp(note,0,127),std::clamp(velocity+int((draw()-.5)*14*s.humanize),1,127),channels[size_t(lane)],lane});
   };
-  auto roots=pr.roots;
+  auto roots=idea.roots;
   const std::array<std::array<int,4>,5> harmonies{{{{0,5,2,6}},{{0,4,5,3}},{{0,3,5,4}},{{0,0,5,0}},{{0,6,5,6}}}};
   if(s.harmony>0)roots=harmonies[size_t(s.harmony-1)];
   std::array<int,3> previous{pitch(0,4),pitch(2,4),pitch(4,4)};
@@ -157,10 +161,11 @@ Sequence generate(const Settings& input) {
         const int mask=(s.groove==3?int(step*4./3.):step)%16;
         double at=base+step*grid+((step%2 && s.groove!=3)?s.swing*grid:0.);
         if(at>=cut-.01)continue;
-        char rhythm=pr.rhythm[mask];
+        const int cellIndex=mask+(bar%2)*16;
+        char rhythm=idea.rhythm[size_t(cellIndex)];
         bool hit=rhythm=='X' || (rhythm=='x' && cellChance(step,bar,1)<density);
         if(hit && active(Ostinato)){
-          const int cell[]{0,4,2,4};
+          const auto& cell=idea.ostinato;
           int degree=(s.style==8 || s.style==9 || s.style==14)?root:root+cell[(step/2)%4];
           if(s.style==2 || s.style==11)degree=root+cell[step%4];
           if(bar%4==3 && s.complexity>.6 && cellChance(step,bar,7)<s.variation*.25)degree+=2;
@@ -168,23 +173,23 @@ Sequence generate(const Settings& input) {
         }
         if(active(Pulse) && step%(half?4:2)==0 && (rhythm!='.' || step==0))add(Pulse,at,clip(at,grid*s.gate),pitch(0,3),int(42+energy*38));
         if(active(Percussion)){
-          bool kick=pr.kick[mask]=='X' || (pr.kick[mask]=='x' && energy>.6);
+          bool kick=idea.kick[size_t(cellIndex)]=='X' || (idea.kick[size_t(cellIndex)]=='x' && energy>.6);
           bool snare=s.groove==1?(mask==4 || mask==12):half?mask==8:pr.snare[mask]=='X';
           if(kick)add(Percussion,at,clip(at,.12),36,int(58+energy*45));
           if(snare)add(Percussion,at,clip(at,.1),38,int(54+energy*43));
           if(!restrained && step%2==0 && act>0 && cellChance(step,bar,2)<density)add(Percussion,at,clip(at,.06),42,int(35+energy*25)+(step%4==0?10:0));
         }
-        if(active(Bass) && (pr.kick[mask]=='X' || step==0)){
-          double next=bpb;for(int j=step+1;j<steps;++j){int m=(s.groove==3?int(j*4./3.):j)%16;if(pr.kick[m]=='X'){next=j*grid;break;}}
+        if(active(Bass) && (idea.kick[size_t(cellIndex)]=='X' || step==0)){
+          double next=bpb;for(int j=step+1;j<steps;++j){int m=(s.groove==3?int(j*4./3.):j)%16;if(idea.kick[size_t(m+(bar%2)*16)]=='X'){next=j*grid;break;}}
           add(Bass,at,clip(at,std::max(.05,next-(at-base)-.06)),pitch(root,2),int(60+energy*35));
         }
       }
       // A persistent two-bar hook: second phrase answers it; only phrase ends vary.
       if(active(Motif) && (act>0 || bar%2==0)){
-        int count=act==0?2:bar%2==0?3:2;
+        int count=act==0?2:bar%2==0?idea.motifCount:2;
         for(int n=0;n<count;++n){
           double at=base+n*bpb/(count+1);if(at>=cut-.01)continue;
-          int degree=pr.motif[size_t((n+(bar%2)*2)%4)];
+          int degree=s.procedural?idea.melody[size_t((n+(bar%2)*4)%8)]:pr.motif[size_t((n+(bar%2)*2)%4)];
           if(bar%4==3 && n==count-1 && s.variation>.5)degree=2;
           int octave=act==3 && s.finalLift && !restrained?6:5;
           add(Motif,at,clip(at,bpb/(count+1)*.7),std::min(88,pitch(degree,octave)),int(57+energy*35)+(n==0?8:0));

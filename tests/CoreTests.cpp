@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <fstream>
 #include <limits>
+#include <set>
 void require(bool ok,const char* msg) {if(!ok)throw std::runtime_error(msg);}
 int main() { try {
  auto s=tf::preset(0); auto b=tf::parseBrief("Horror in F# harmonic minor 97 BPM, 7/8, act one: 3 bars, act 2: 6 bars. piano metal. no breaks",s);
@@ -66,6 +67,18 @@ int main() { try {
  require(chordChanged,"harmony changes pitched chords");
  // Same-pitch notes cannot overlap after maximum humanization.
  for(auto& n:human.notes)for(auto& other:human.notes)if(&n!=&other && n.lane==other.lane && n.pitch==other.pitch && n.beat<other.beat)require(n.beat+n.length<=other.beat+1.e-8,"same pitch overlap");
+ // Randomization must change actual composition with humanization disabled.
+ auto gen=tf::preset(0);gen.humanize=0;gen.exploration=1;gen.fullArrangement=false;gen.selectedAct=2;gen.patternBars=8;gen.button=false;
+ std::set<std::vector<uint8_t>> melodies,grooves,harmonies;
+ for(int i=0;i<64;++i){auto result=tf::generate(gen);melodies.insert(tf::midiFile(result,tf::Motif));grooves.insert(tf::midiFile(result,tf::Percussion));harmonies.insert(tf::midiFile(result,tf::Chords));gen=tf::newVariation(gen);}
+ require(melodies.size()>40 && grooves.size()>40 && harmonies.size()>20,"procedural musical diversity");
+ gen.humanize=1;gen.ideaLocks={true,true,true};auto before=tf::midiFile(tf::generate(gen));auto locked=tf::newVariation(gen);
+ require(before==tf::midiFile(tf::generate(locked)),"all locks preserve exact MIDI");
+ gen.ideaLocks={false,false,false};gen.randomScope=3;auto rhythmOnly=tf::newVariation(gen);
+ require(tf::midiFile(tf::generate(gen),tf::Motif)==tf::midiFile(tf::generate(rhythmOnly),tf::Motif),"rhythm scope preserves motif including performance");
+ require(tf::midiFile(tf::generate(gen),tf::Chords)==tf::midiFile(tf::generate(rhythmOnly),tf::Chords),"rhythm scope preserves chords");
+ require(gen.key==rhythmOnly.key && gen.bpm==rhythmOnly.bpm && gen.bars==rhythmOnly.bars,"randomization preserves brief constraints");
+ require(tf::midiFile(tf::generate(rhythmOnly))==tf::midiFile(tf::generate(tf::newVariation(gen))),"variation recall deterministic");
  auto ccFile=tf::midiFile(express);if(auto f=std::ofstream("test-expression.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(ccFile.data()),static_cast<std::streamsize>(ccFile.size()));
  if(auto f=std::ofstream("test-arrangement.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(data.data()),static_cast<std::streamsize>(data.size()));
  std::cout<<"PASS: brief parsing, 240 style/mode/meter combinations, determinism, bounds, breaks, mutes, MIDI and six audio gestures\n";

@@ -158,3 +158,15 @@ Brief parsing also recognises half-time, triplet, straight, swing, second climax
 Existing projects retain their stored settings, with defaults for new controls, but regenerate using the revised engine. Export old MIDI before upgrading if exact old notes are needed. The AU/VST3 identifiers and installer locations remain the same.
 
 Read [Production research and listening references](PRODUCTION-RESEARCH.md) for sources and practical finishing exercises.
+
+## Procedural composition (0.3)
+
+The Generative tab adds composition beyond the sixteen starting profiles. Enable Procedural composition, select a genre, then press NEW VARIATION. The generator designs an eight-note call/answer vocabulary, a four-chord journey, ostinato intervals and a two-bar rhythm cell. Notes remain in the selected mode, kick and bass share attacks, chord inversions minimise movement, and arrangement breaks remain clean.
+
+Exploration controls how often the generator departs from the genre's vocabulary. It is not an audio similarity score. Melody length and answer resolution can vary even at zero exploration. All unlocked ideas, Melody + ostinato, Harmony, and Rhythm + bass attacks are separate randomization scopes. Locks prevent randomizing their design seeds. Changing key, genre, density, exploration or arrangement still changes the result; a harmony change can transpose bass and ostinato despite a melodic-design lock. Explicit harmony palettes in Production override generated chord roots.
+
+Key, BPM, meter, act lengths, edit points and lane enables are never randomized. A/B: PREVIOUS VARIATION swaps the last two variation settings while the editor remains open; this comparison is not saved. The active design seeds, 64-bit generation counter, scope and locks save with the DAW session. Existing version 1/2 sessions load with procedural composition disabled to retain their old music. Enable it to adopt the new generator.
+
+There is a large deterministic combination space, not a promise of literally infinite distinct or commercially finished compositions. Variations may repeat. Export the usable MIDI to your own instruments and develop the best hook. Sound-design synthesis and atmosphere controls remain separate from these three randomization domains.
+
+The catalog button opens [Brand X Music — Chronos](https://brandxmusic.bandcamp.com/album/chronos). Its official catalog identifies orchestral advertising music and hybrid/epic trailer genres. This release used catalog metadata, not listening analysis or transcription; it contains no Brand X recordings, copied melodies, trained imitation model, or affiliation.

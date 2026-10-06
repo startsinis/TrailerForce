@@ -30,3 +30,7 @@ These checks cannot be inferred from a successful compiler or auval run. Record 
 - [ ] Publisher-sign/notarize final deliverables and test on a clean machine.
 
 0.2 regression coverage additionally checks staged entrances, new brief genres, same-pitch overlap removal, harmony and swing changes, controller bounds and independently decoded expression MIDI.
+
+## 0.3 generative checks
+
+Automated core checks require diverse melodic, harmonic and rhythmic MIDI across 64 variants with humanization disabled; exact all-lock output; rhythm-only isolation of melody and chords even at maximum humanization; repeatable variation recall; unchanged key, tempo and acts. Native CI additionally builds all targets and runs both AU validators. Listening and hands-on DAW routing tests remain manual release gates.

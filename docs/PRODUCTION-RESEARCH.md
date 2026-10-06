@@ -61,3 +61,7 @@ These are verified public links for the user to inspect. No timestamped musical 
 7. **Delivery:** follow the actual client's requirements for duration, stems, alternate endings and loudness. This plug-in does not enforce a universal delivery standard or mastering target.
 
 The built-in synth remains a sketch monitor. Realistic instruments, articulation selection, mix decisions and listening review are still part of production; these changes improve the underlying musical sketch rather than guarantee a finished commercial master.
+
+## Brand X Music reference, October 2026
+
+Official source: https://brandxmusic.bandcamp.com/album/chronos. Catalog identifies an orchestral motion-picture advertising library with hybrid, epic and trailer tags. Research was metadata-only; no audio was auditioned or transcribed. The new call/answer grammar, functional root choices and constrained rhythm mutation are original engineering choices, not measured attributes of this album.

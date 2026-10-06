@@ -16,6 +16,12 @@ struct Settings {
   int style=0, key=2, mode=Minor, numerator=4, denominator=4;
   double bpm=120, density=.6, complexity=.5, variation=.35, humanize=.12;
   uint32_t seed=42;
+  bool procedural=true;
+  double exploration=.65;
+  int randomScope=0; // All, melody, harmony, rhythm
+  uint64_t generation=0;
+  std::array<uint32_t,3> ideaSeeds{42,137,971};
+  std::array<bool,3> ideaLocks{false,false,false};
   std::array<int,4> bars{8,16,16,8};
   std::array<bool,laneCount> enabled{true,true,true,true,true,true,true,true,true};
   bool breaks=true, button=true, hostSync=true, fullArrangement=true;
@@ -37,6 +43,7 @@ struct Event { double beat; uint8_t status, data1, data2; };
 struct BriefResult { Settings settings; std::string report; };
 Settings sanitise(Settings);
 Settings preset(int);
+Settings newVariation(Settings);
 BriefResult parseBrief(const std::string&, const Settings&);
 Sequence generate(const Settings&);
 Sequence soundGesture(const Settings&);

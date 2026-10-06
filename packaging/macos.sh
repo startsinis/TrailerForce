@@ -2,7 +2,7 @@
 set -euo pipefail
 BUILD=${1:-build}
 OUT=${2:-dist}
-VERSION=${3:-0.2.0}
+VERSION=${3:-0.3.0}
 ROOT="$OUT/macos-root"
 mkdir -p "$ROOT/Library/Audio/Plug-Ins/VST3" "$ROOT/Library/Audio/Plug-Ins/Components" "$ROOT/Library/Application Support/Vinci Sounds/Trailer Force"
 cp -R "$BUILD/TrailerForce_artefacts/Release/VST3/Trailer Force.vst3" "$ROOT/Library/Audio/Plug-Ins/VST3/"

@@ -58,3 +58,7 @@ Project source copyright © 2026 Vinci Sounds. All rights reserved; no open-sour
 Sixteen distinct profiles now drive rhythmic cells, kick/bass placement, harmonic rhythm and recurring motifs. Chords use nearby inversions; short-note overlaps are removed. A new Production tab adds harmonic palettes, groove, swing, articulation gate, staged entrances, a second-climax option and optional CC1/CC11 curves for Chords/Atmosphere. New default arrangements use 8/16/16/8 bars.
 
 [Production research and listening references](docs/PRODUCTION-RESEARCH.md) explains the first-party sources, original design choices and a practical DAW finishing pass. Existing projects regenerate under the revised engine; export important old MIDI before replacing 0.1.0 if exact reproduction matters.
+
+### 0.3 procedural composition
+
+Generative tab: new melodic calls/answers, harmonic journeys and two-bar grooves; independent melody/harmony/rhythm randomization; design locks; exploration control; previous-variation A/B; session recall. See the user manual for scope, lock semantics and Brand X catalog reference limitations.
