@@ -1,5 +1,5 @@
 # Trailer Force by Vinci Sounds — User Manual
-Version 0.1.0
+Version 0.2.0
 
 ## Install and open
 
@@ -38,7 +38,7 @@ Load Trailer Force as an instrument. Its internal monitor makes the MIDI audible
 
 The parser is local and rule based, with no online inference or API charges. It recognises:
 
-- Styles: hybrid/action, epic/orchestral, neoclassical, thriller, horror, emotional, sci-fi, trailer pop.
+- Styles: hybrid/action, epic/orchestral, neoclassical, thriller, horror, emotional, sci-fi, trailer pop, swagger/hip-hop, industrial, dark cover, fantasy/adventure, comedy/heist, documentary, trailer rock and minimal/true crime.
 - Notes A–G with `#` or `b`, followed by minor, major, Dorian, Phrygian or harmonic minor; examples `F# harmonic minor`, `Bb minor`.
 - A number followed by `BPM`, a time signature with denominator 4 or 8, and `act 2: 8 bars` or `act two: 8 bars`.
 - Sparse, dense, massive, dark, hopeful, aggressive, no breaks, no button, button.
@@ -82,7 +82,7 @@ The internal sounds are a sketch monitor, not realistic orchestral samples. Moni
 
 ## Structure
 
-Set Act I–IV to 1–32 bars each. Act I introduces the hook, Act II raises energy, Act III reaches peak density/velocity, and Act IV resolves. Edit Every places MIDI markers at regular bar boundaries. Breaks reserve the final quarter-note beat (or a shorter fraction in short bars) before non-final edit points. All generated lanes are shortened to respect the break. External instrument releases or reverb can still ring.
+Set Act I–IV to 1–32 bars each. Act I introduces the hook, Act II raises energy, Act III reaches peak density/velocity, and Act IV can deliver a second climax or resolve, using the Production tab. Edit Every places MIDI markers at regular bar boundaries. Breaks reserve the final quarter-note beat (or a shorter fraction in short bars) before non-final edit points. All generated lanes are shortened to respect the break. External instrument releases or reverb can still ring.
 
 Transitions occupy the final bar of each act up to the break. With Button Ending enabled, the final bar begins with a short chord/bass/percussion/impact hit and leaves the remainder open. Disable it for continuing patterns.
 
@@ -139,3 +139,22 @@ Build Climax Layers creates a focused Act III pattern with all lanes active and 
 ## Uninstall
 
 Windows: Settings > Apps > Trailer Force by Vinci Sounds > Uninstall. Mac: run `/Library/Application Support/Vinci Sounds/Trailer Force/Uninstall-TrailerForce.command`, confirm and enter your administrator password. Both remove only installed application files; exports and DAW projects are preserved.
+
+## Production tab — new in 0.2
+
+- **Harmonic palette:** genre defaults or five root-degree progressions. Chord inversions minimise voice movement in a middle register; bass remains a separate root-based line.
+- **Groove:** genre pocket, straight backbeat, half-time backbeat or triplet subdivision.
+- **Swing:** delays alternating short-grid steps; disabled by the triplet grid.
+- **Short-note gate:** changes ostinato/pulse note lengths for articulation matching.
+- **Stage layer entrances:** leaves bass/drums out of the opening, introduces motion later and delays percussion during the build. Lane checkboxes still provide overall mutes.
+- **Act IV: second climax:** raises final-section energy and lifts the motif register in energetic styles. Turn off for a quieter resolution.
+- **CC1 + CC11:** sends/exports quarter-bar controller points for Chords and Atmosphere only. Enable only if your target instruments use modulation for dynamics and expression for level. Other lanes use note velocity. Controllers may remain latched in external instruments; override/reset them in your DAW as needed. The internal sketch sound does not render those CC curves.
+- **Open Genre Reference:** opens the selected profile's public research/catalog link in your browser when clicked. Generation itself remains offline. The text panel contains a genre-specific production plan and can be scrolled.
+
+Profiles now use persistent two-bar rhythm/hook cells, phrase-end variation, nearby chord inversions and kick-aligned bass. Default new cues are 8/16/16/8 bars (96 seconds at 120 BPM in 4/4). This is a starting length, not a required trailer duration.
+
+Brief parsing also recognises half-time, triplet, straight, swing, second climax, final lift and quiet outro. Dark Cover Framework creates an original placeholder; it neither imports nor recreates a commercial song.
+
+Existing projects retain their stored settings, with defaults for new controls, but regenerate using the revised engine. Export old MIDI before upgrading if exact old notes are needed. The AU/VST3 identifiers and installer locations remain the same.
+
+Read [Production research and listening references](PRODUCTION-RESEARCH.md) for sources and practical finishing exercises.

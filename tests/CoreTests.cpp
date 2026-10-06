@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include "Profiles.h"
 #include "Sound.h"
 #include "Playback.h"
 #include <cmath>
@@ -16,7 +17,7 @@ int main() { try {
  auto q=tf::generate(s); auto q2=tf::generate(s);
  require(!q.notes.empty() && q.notes.size()==q2.notes.size(),"determinism size");
  for(size_t i=0;i<q.notes.size();++i) require(q.notes[i].beat==q2.notes[i].beat && q.notes[i].pitch==q2.notes[i].pitch,"determinism values");
- for(int style=0;style<8;++style) for(int mode=0;mode<5;++mode) for(int meter:{3,4,7}) {
+ for(int style=0;style<tf::styleCount;++style) for(int mode=0;mode<5;++mode) for(int meter:{3,4,7}) {
   auto p=tf::preset(style);p.mode=mode;p.numerator=meter;p.denominator=meter==7?8:4;
   auto seq=tf::generate(p); std::array<int,9> counts{};
   for(auto& n:seq.notes) {require(n.beat>=0 && n.length>0 && n.beat+n.length<=seq.beats+1e-8,"note bounds");require(n.pitch>=0 && n.pitch<=127 && n.velocity>0 && n.velocity<=127,"midi bounds");counts[n.lane]++;}
@@ -46,6 +47,26 @@ int main() { try {
  // Humanization may not leak into edit breaks.
  s=tf::preset(0);s.humanize=1;auto human=tf::generate(s);
  for(auto& marker:human.markers)if(marker.text=="BREAK")for(auto& n:human.notes)require(!(n.beat<marker.beat+1 && n.beat+n.length>marker.beat+1.e-8),"humanized break");
+ // Genre controls must change the exported music, not just display text.
+ auto hip=tf::parseBrief("Swagger hip-hop in C minor, half-time, swing and a second climax",tf::Settings{}).settings;
+ require(hip.style==8 && hip.groove==2 && hip.swing>0 && hip.finalLift,"new genre brief");
+ require(tf::parseBrief("true crime with a quiet outro",tf::Settings{}).settings.style==15,"crime brief");
+ auto staged=tf::preset(0);staged.humanize=0;auto arranged=tf::generate(staged);
+ for(auto& n:arranged.notes)if(n.beat<staged.bars[0]*staged.beatsPerBar())require(n.lane!=tf::Bass && n.lane!=tf::Percussion,"intro leaves rhythm space");
+ staged.expression=true;auto express=tf::generate(staged);require(!express.controls.empty(),"expression curves exist");
+ for(auto& c:express.controls)require(c.value>=0 && c.value<=127 && c.beat>=0 && c.beat<express.beats,"controller bounds");
+ require(tf::events(express,tf::Chords).size()>tf::events(arranged,tf::Chords).size(),"CC exported with lane");
+ staged.fullArrangement=false;staged.selectedAct=2;staged.button=false;staged.breaks=false;
+ auto straight=tf::generate(staged);staged.swing=.3;auto swung=tf::generate(staged);bool timingChanged=false;
+ for(size_t i=0;i<std::min(straight.notes.size(),swung.notes.size());++i)timingChanged|=straight.notes[i].beat!=swung.notes[i].beat;
+ require(timingChanged,"swing changes note timing");
+ staged.swing=0;staged.harmony=2;auto reharmonised=tf::generate(staged);bool chordChanged=false;
+ auto original=tf::events(straight,tf::Chords),changed=tf::events(reharmonised,tf::Chords);
+ for(size_t i=0;i<std::min(original.size(),changed.size());++i)chordChanged|=original[i].data1!=changed[i].data1;
+ require(chordChanged,"harmony changes pitched chords");
+ // Same-pitch notes cannot overlap after maximum humanization.
+ for(auto& n:human.notes)for(auto& other:human.notes)if(&n!=&other && n.lane==other.lane && n.pitch==other.pitch && n.beat<other.beat)require(n.beat+n.length<=other.beat+1.e-8,"same pitch overlap");
+ auto ccFile=tf::midiFile(express);if(auto f=std::ofstream("test-expression.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(ccFile.data()),static_cast<std::streamsize>(ccFile.size()));
  if(auto f=std::ofstream("test-arrangement.mid",std::ios::binary))f.write(reinterpret_cast<const char*>(data.data()),static_cast<std::streamsize>(data.size()));
- std::cout<<"PASS: brief parsing, 120 style/mode/meter combinations, determinism, bounds, breaks, mutes, MIDI and six audio gestures\n";
+ std::cout<<"PASS: brief parsing, 240 style/mode/meter combinations, determinism, bounds, breaks, mutes, MIDI and six audio gestures\n";
  }catch(const std::exception& e){std::cerr<<"FAIL: "<<e.what()<<"\n";return 1;} }

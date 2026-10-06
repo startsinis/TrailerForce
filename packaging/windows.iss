@@ -1,5 +1,5 @@
 #ifndef Version
-#define Version "0.1.0"
+#define Version "0.2.0"
 #endif
 [Setup]
 AppId={{BEF537ED-CDA8-421B-8A91-93DDE5368754}
@@ -20,6 +20,7 @@ WizardStyle=modern
 [Files]
 Source: "..\build\TrailerForce_artefacts\Release\VST3\Trailer Force.vst3\*"; DestDir: "{commoncf64}\VST3\Trailer Force.vst3"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\docs\USER-MANUAL.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\docs\PRODUCTION-RESEARCH.md"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{group}\Trailer Force User Manual"; Filename: "{app}\USER-MANUAL.md"
 Name: "{group}\Uninstall Trailer Force"; Filename: "{uninstallexe}"

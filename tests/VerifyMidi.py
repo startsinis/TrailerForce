@@ -54,10 +54,12 @@ def verify(path):
                     assert n == 0 and pos == end
                     ended = True
             else:
-                assert status & 240 in (128, 144)
+                assert status & 240 in (128, 144, 176)
                 pitch, velocity = data[pos:pos+2]
                 pos += 2
                 assert pitch < 128 and velocity < 128
+                if status & 240 == 176:
+                    continue
                 key = (status & 15, pitch)
                 if status & 240 == 144 and velocity:
                     active[key] = active.get(key, 0) + 1

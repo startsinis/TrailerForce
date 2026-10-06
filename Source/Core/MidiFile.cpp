@@ -25,7 +25,7 @@ std::vector<uint8_t> midiFile(const Sequence& s,int lane) {
  track(out,conductor,tick(s.beats));
  for(int l=0;l<laneCount;++l) if(lane<0 || lane==l) {
   std::vector<ME> ev{{0,0,meta(3,laneNames[l])}};
-  for(auto& e:events(s,l)) ev.push_back({tick(e.beat),(e.status&0xf0)==0x80?1:2,{e.status,e.data1,e.data2}});
+  for(auto& e:events(s,l)) ev.push_back({tick(e.beat),(e.status&0xf0)==0x80?1:(e.status&0xf0)==0xb0?2:3,{e.status,e.data1,e.data2}});
   track(out,ev,tick(s.beats));
  }
  return out;

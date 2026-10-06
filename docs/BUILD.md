@@ -21,7 +21,7 @@ The Windows target statically links the MSVC runtime, so the installer does not 
 cmake -S . -B build -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
 cmake --build build --config Release --parallel 3
 ctest --test-dir build -C Release --output-on-failure
-bash packaging/macos.sh build dist 0.1.0
+bash packaging/macos.sh build dist 0.2.0
 ```
 
 The deployment target is the compile target, not a guarantee of testing on every macOS release. Apple Silicon requires macOS 11 or newer. Windows targets x64; Windows ARM-native and 32-bit builds are not included.

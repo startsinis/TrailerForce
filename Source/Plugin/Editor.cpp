@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "Profiles.h"
 namespace { const juce::Colour bg{0xff111823},panel{0xff1c2837},accent{0xffa9d9ee},sage{0xffa9c9b0},ink{0xffe7eef4},muted{0xff9baabb}; }
 void Roll::paint(juce::Graphics& g) {
  g.fillAll(bg.brighter(.04f));auto r=getLocalBounds().reduced(10);g.setColour(muted);g.setFont(12.f);g.drawText("MIDI OVERVIEW  /  "+juce::String(lane<0?"All lanes":tf::laneNames[size_t(lane)]),r.removeFromTop(22),juce::Justification::centredLeft);
@@ -23,8 +24,8 @@ void TrailerForceEditor::toggle(int page,juce::String name,juce::Rectangle<int> 
 }
 TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioProcessorEditor(processor),p(processor),working(p.settings()) {
  look.setColour(juce::ResizableWindow::backgroundColourId,bg);look.setColour(juce::Label::textColourId,ink);look.setColour(juce::TextButton::buttonColourId,panel);look.setColour(juce::TextButton::textColourOffId,ink);look.setColour(juce::ComboBox::backgroundColourId,panel);look.setColour(juce::ComboBox::textColourId,ink);look.setColour(juce::PopupMenu::backgroundColourId,panel);look.setColour(juce::PopupMenu::textColourId,ink);look.setColour(juce::Slider::trackColourId,sage);look.setColour(juce::Slider::thumbColourId,accent);look.setColour(juce::TextEditor::backgroundColourId,bg);look.setColour(juce::TextEditor::textColourId,ink);look.setColour(juce::TextEditor::outlineColourId,panel.brighter(.2f));look.setColour(juce::TabbedButtonBar::tabTextColourId,ink);setLookAndFeel(&look);
- const char* names[]{"Creative Brief","MIDI Designer","Structure","Atmosphere","Sound Design","Climax","What Next?"};
- for(int i=0;i<7;++i){forms[size_t(i)]=new Form();tabs.addTab(names[i],panel,forms[size_t(i)],true);}addAndMakeVisible(tabs);tabs.setTabBarDepth(38);
+ const char* names[]{"Creative Brief","MIDI Designer","Structure","Atmosphere","Sound Design","Climax","What Next?","Production"};
+ for(int i=0;i<8;++i){forms[size_t(i)]=new Form();tabs.addTab(names[i],panel,forms[size_t(i)],true);}addAndMakeVisible(tabs);tabs.setTabBarDepth(38);
  for(juce::Component* c:std::initializer_list<juce::Component*>{&status,&transport,&generateButton,&variationButton,&auditionButton,&stopButton,&saveButton,&monitor,&follow,&solo,&gain,&lane,&drag,&roll})addAndMakeVisible(c);
  generateButton.setColour(juce::TextButton::buttonColourId,accent);generateButton.setColour(juce::TextButton::textColourOffId,bg);
  monitorAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.parameters,"monitor",monitor);followAttachment=std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.parameters,"run",follow);
@@ -50,7 +51,7 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  slider(1,"Variation",{550,100,235,62},0,1,.01,[this]{return working.variation;},[this](double v){working.variation=v;});
  slider(1,"Humanize",{815,100,225,62},0,1,.01,[this]{return working.humanize;},[this](double v){working.humanize=v;});
  slider(1,"Pattern bars",{20,185,235,62},1,16,1,[this]{return working.patternBars;},[this](double v){working.patternBars=int(v);});
- combo(1,"Pattern energy",{285,185,235,62},{"Act I / setup","Act II / build","Act III / climax","Act IV / resolve"},[this]{return working.selectedAct;},[this](int v){working.selectedAct=v;});
+ combo(1,"Pattern energy",{285,185,235,62},{"Act I / setup","Act II / build","Act III / climax","Act IV / final lift"},[this]{return working.selectedAct;},[this](int v){working.selectedAct=v;});
  toggle(1,"Generate full arrangement",{550,209,300,35},[this]{return working.fullArrangement;},[this](bool v){working.fullArrangement=v;});
  for(int i=0;i<tf::laneCount;++i)toggle(1,tf::laneNames[size_t(i)],{20+(i%5)*208,275+(i/5)*42,200,32},[this,i]{return working.enabled[size_t(i)];},[this,i](bool v){working.enabled[size_t(i)]=v;});
  for(int i=0;i<4;++i)slider(2,"Act "+juce::String(i+1)+" / bars",{20+i*260,20,235,64},1,32,1,[this,i]{return working.bars[size_t(i)];},[this,i](double v){working.bars[size_t(i)]=int(v);});
@@ -58,7 +59,7 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  slider(2,"Edit point every / bars",{280,110,235,64},1,16,1,[this]{return working.editEvery;},[this](double v){working.editEvery=int(v);});
  toggle(2,"Break before edit points",{560,135,240,35},[this]{return working.breaks;},[this](bool v){working.breaks=v;});
  toggle(2,"Button ending",{820,135,210,35},[this]{return working.button;},[this](bool v){working.button=v;});
- text(2,"I  SETUP: sparse hook and atmosphere\nII  BUILD: rhythmic foundation and tension\nIII  CLIMAX: density, accents and layered motion\nIV  RESOLUTION: reduced energy and a final button\n\nMIDI exports include act, edit, break, transition and button markers. The final bar starts with the button hit when enabled. Breaks cut MIDI note lengths; sample-library release tails remain under your instrument's control.",{20,215,1020,156});
+ text(2,"I  SETUP: sparse hook and atmosphere\nII  BUILD: rhythmic foundation and tension\nIII  CLIMAX: density, accents and layered motion\nIV  FINAL LIFT / RESOLUTION: choose the second climax in Production\n\nMIDI exports include act, edit, break, transition and button markers. The final bar starts with the button hit when enabled. Breaks cut MIDI note lengths; sample-library release tails remain under your instrument's control.",{20,215,1020,156});
  slider(3,"Atmosphere level / velocity",{20,25,310,64},0,1,.01,[this]{return working.atmosphere;},[this](double v){working.atmosphere=v;});
  slider(3,"Motion",{375,25,310,64},0,1,.01,[this]{return working.motion;},[this](double v){working.motion=v;});
  slider(3,"Darkness",{730,25,310,64},0,1,.01,[this]{return working.darkness;},[this](double v){working.darkness=v;});
@@ -80,15 +81,24 @@ TrailerForceEditor::TrailerForceEditor(TrailerForceProcessor& processor):AudioPr
  auto build=std::make_unique<juce::TextButton>("BUILD CLIMAX LAYERS");build->onClick=[this]{working.enabled.fill(true);working.selectedAct=2;working.fullArrangement=false;working.density=std::max(.7,working.density);working.complexity=std::max(.65,working.complexity);working.climax=1.;commit();sync();};forms[5]->add(std::move(build),{560,52,400,40});
  text(5,"CLIMAX BUILDER\n\nBuild Climax Layers creates a focused Act III pattern with all nine lanes enabled. Set Pattern Bars in MIDI Designer, then export each lane to a dedicated instrument.\n\n1  Bass and percussion establish the low-end rhythm.\n2  Ostinato and pulse add motion.\n3  Motif and chords carry the hook and harmony.\n4  Atmosphere and sound design widen the arrangement.\n5  Transition notes accelerate into the edit.\n\nEnable Full Arrangement again to place this energy back into the four-act structure.",{20,140,1020,220});
  auto next=std::make_unique<juce::TextEditor>();next->setMultiLine(true);next->setReadOnly(true);next->setFont(juce::Font(juce::FontOptions(16.f)));guide=forms[6]->add(std::move(next),{20,20,1020,350});
+ combo(7,"Harmonic palette / scale degrees",{20,10,350,64},{"Genre default","1 - 6 - 3 - 7","1 - 5 - 6 - 4","1 - 4 - 6 - 5","Pedal: 1 - 1 - 6 - 1","1 - 7 - 6 - 7"},[this]{return working.harmony;},[this](int v){working.harmony=v;});
+ combo(7,"Groove",{410,10,280,64},{"Genre pocket","Straight backbeat","Half-time backbeat","Triplet subdivision"},[this]{return working.groove;},[this](int v){working.groove=v;});
+ slider(7,"Short-note gate",{730,10,310,64},.2,1.2,.01,[this]{return working.gate;},[this](double v){working.gate=v;});
+ slider(7,"Swing / offbeat delay",{20,90,350,64},0,.45,.01,[this]{return working.swing;},[this](double v){working.swing=v;});
+ toggle(7,"Stage layer entrances",{410,112,250,36},[this]{return working.smartLayers;},[this](bool v){working.smartLayers=v;});
+ toggle(7,"Act IV: second climax",{730,112,310,36},[this]{return working.finalLift;},[this](bool v){working.finalLift=v;});
+ toggle(7,"Export / send CC1 + CC11 (Chords and Atmosphere)",{20,174,700,34},[this]{return working.expression;},[this](bool v){working.expression=v;});
+ auto reference=std::make_unique<juce::TextButton>("OPEN GENRE REFERENCE");reference->onClick=[this]{juce::URL(tf::profile(working.style).source).launchInDefaultBrowser();};forms[7]->add(std::move(reference),{730,174,310,34});
+ auto productionBox=std::make_unique<juce::TextEditor>();productionBox->setMultiLine(true);productionBox->setReadOnly(true);production=forms[7]->add(std::move(productionBox),{20,224,1020,154});
  setResizable(true,true);setResizeLimits(1120,850,1800,1200);setSize(1180,900);sync();commit();startTimerHz(20);
 }
 TrailerForceEditor::~TrailerForceEditor(){stopTimer();if(dirty)commit();p.soloLane.store(-1);setLookAndFeel(nullptr);}
 void TrailerForceEditor::changed(){dirty=true;lastEdit=juce::Time::getMillisecondCounterHiRes();}
-void TrailerForceEditor::commit(bool gesture){working=tf::sanitise(working);p.generate(working,gesture);dirty=false;seenRevision=p.revision.load();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);status.setText(juce::String(static_cast<int>(roll.sequence.notes.size()))+" notes  |  "+juce::String(roll.sequence.beats*60./working.bpm,1)+" seconds at "+juce::String(working.bpm,1)+" BPM  |  Seed "+juce::String(working.seed),juce::dontSendNotification);roll.repaint();}
+void TrailerForceEditor::commit(bool gesture){working=tf::sanitise(working);p.generate(working,gesture);dirty=false;seenRevision=p.revision.load();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);production->setText(tf::productionNotes(working),false);status.setText(juce::String(static_cast<int>(roll.sequence.notes.size()))+" notes  |  "+juce::String(roll.sequence.beats*60./working.bpm,1)+" seconds at "+juce::String(working.bpm,1)+" BPM  |  Seed "+juce::String(working.seed),juce::dontSendNotification);roll.repaint();}
 void TrailerForceEditor::sync(){refreshing=true;for(auto& f:reload)f();brief->setText(working.brief,false);refreshing=false;}
 void TrailerForceEditor::timerCallback(){
  if(dirty && juce::Time::getMillisecondCounterHiRes()-lastEdit>220)commit();
- if(!dirty && p.revision.load()!=seenRevision){working=p.settings();seenRevision=p.revision.load();sync();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);}
+ if(!dirty && p.revision.load()!=seenRevision){working=p.settings();seenRevision=p.revision.load();sync();roll.sequence=p.sequence();guide->setText(tf::nextStep(working,roll.sequence),false);production->setText(tf::productionNotes(working),false);}
  roll.beat=p.playBeat.load();roll.repaint();auditionButton.setButtonText(p.isAuditioning()?"STOP AUDITION":"AUDITION");transport.setText(juce::String(p.hostPlaying.load()?"DAW PLAYING":"DAW STOPPED")+"  /  "+juce::String(p.hostBpm.load(),1)+" BPM",juce::dontSendNotification);
 }
 void TrailerForceEditor::exportMidi(bool dragging){

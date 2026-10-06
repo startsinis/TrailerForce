@@ -19,7 +19,7 @@ Native JUCE trailer-composition plug-in. **Not a web app.** Generates playable, 
 - Key, five modes, tempo/host sync, density, complexity, variation, seeded regeneration and humanization.
 - Type-1 MIDI export with separate named tracks, tempo, time signature and arrangement markers; individual lane export and native external file drag.
 - Atmosphere drone/motion generator; six synthesised braam/impact/riser/downer/whoosh/signature gestures with WAV export.
-- Climax builder, eight style presets, contextual next-step guidance, native piano-roll overview, transport cursor, lane solo and panic.
+- Climax builder, sixteen production profiles, contextual next-step guidance, native piano-roll overview, transport cursor, lane solo and panic.
 - DAW state recall; automatable sketch monitor, monitor gain and DAW-play enable parameters.
 - Universal Mac PKG and Windows Inno Setup EXE build workflows.
 
@@ -44,7 +44,7 @@ ctest --test-dir build-core --output-on-failure
 # macOS universal
 cmake -S . -B build -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
 cmake --build build --config Release --parallel 3
-bash packaging/macos.sh build dist 0.1.0
+bash packaging/macos.sh build dist 0.2.0
 ```
 
 This is a functional first release, not a pretrained AI assistant or a bundled orchestral sample library. Instrument names in a brief are orchestration notes, not automatic discovery/loading of commercial instruments. Host MIDI-output routing and drag behavior differ; MIDI file export is the portable workflow.
@@ -52,3 +52,9 @@ This is a functional first release, not a pretrained AI assistant or a bundled o
 ## Licensing
 
 Project source copyright © 2026 Vinci Sounds. All rights reserved; no open-source license is granted for this project source. Third-party JUCE code remains under its own license. Before distributing a commercial build, the distributor must ensure their use complies with JUCE's applicable licensing terms; this repository does not grant a JUCE commercial license.
+
+## 0.2 production revision
+
+Sixteen distinct profiles now drive rhythmic cells, kick/bass placement, harmonic rhythm and recurring motifs. Chords use nearby inversions; short-note overlaps are removed. A new Production tab adds harmonic palettes, groove, swing, articulation gate, staged entrances, a second-climax option and optional CC1/CC11 curves for Chords/Atmosphere. New default arrangements use 8/16/16/8 bars.
+
+[Production research and listening references](docs/PRODUCTION-RESEARCH.md) explains the first-party sources, original design choices and a practical DAW finishing pass. Existing projects regenerate under the revised engine; export important old MIDI before replacing 0.1.0 if exact reproduction matters.

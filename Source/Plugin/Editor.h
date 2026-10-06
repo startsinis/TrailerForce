@@ -30,8 +30,8 @@ private:
  TrailerForceProcessor& p;tf::Settings working;bool refreshing=false,dirty=false;uint64_t seenRevision=0;double lastEdit=0;
  juce::LookAndFeel_V4 look;
  juce::TabbedComponent tabs{juce::TabbedButtonBar::TabsAtTop};
- std::array<Form*,7> forms{};
- juce::TextEditor *brief=nullptr,*interpretation=nullptr,*guide=nullptr;
+ std::array<Form*,8> forms{};
+ juce::TextEditor *brief=nullptr,*interpretation=nullptr,*guide=nullptr,*production=nullptr;
  juce::Label status,transport;
  juce::TextButton generateButton{"GENERATE MIDI"},variationButton{"NEW VARIATION"},auditionButton{"AUDITION"},stopButton{"STOP / PANIC"},saveButton{"SAVE MIDI"};
  juce::ToggleButton monitor{"Sketch sound"},follow{"DAW play"},solo{"Solo selected lane"};

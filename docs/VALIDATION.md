@@ -3,7 +3,7 @@
 ## Automated
 
 - Portable parser checks: sharp/flat key, mode, BPM, meter, numeric and written act lengths.
-- 120 style/mode/meter combinations with nonempty lanes, note bounds and valid MIDI values.
+- 240 style/mode/meter combinations with nonempty lanes, note bounds and valid MIDI values.
 - Deterministic seeded composition, ordered events, note clipping through breaks, lane exclusion, pattern length, invalid-value sanitisation.
 - MIDI type-1 header/track counts and individual-lane export; independent Python SMF decoding checks all track chunks, end positions, note-on/off pairs and markers; six non-silent procedural WAV gestures.
 - Block scheduling regression checks at 32/64/512/2048 sample buffers, exact loop-end note-offs, solo filtering and humanized break boundaries.
@@ -28,3 +28,5 @@ These checks cannot be inferred from a successful compiler or auval run. Record 
 - [ ] Export all six WAV gestures and audition in a DAW.
 - [ ] Install, upgrade and uninstall without disturbing other plug-ins or project files.
 - [ ] Publisher-sign/notarize final deliverables and test on a clean machine.
+
+0.2 regression coverage additionally checks staged entrances, new brief genres, same-pitch overlap removal, harmony and swing changes, controller bounds and independently decoded expression MIDI.

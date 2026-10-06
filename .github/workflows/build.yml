@@ -37,7 +37,7 @@ jobs:
         run: ctest --test-dir build -C Release --output-on-failure
       - name: Package universal Mac installer
         if: runner.os == 'macOS'
-        run: bash packaging/macos.sh build dist 0.1.0
+        run: bash packaging/macos.sh build dist 0.2.0
       - name: Validate both Audio Units
         if: runner.os == 'macOS'
         run: |
@@ -86,9 +86,9 @@ jobs:
           merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v0.1.0-preview.{0}', github.run_number) }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v0.2.0-preview.{0}', github.run_number) }}
           target_commitish: ${{ github.sha }}
-          name: Trailer Force 0.1.0 — native preview build ${{ github.run_number }}
+          name: Trailer Force 0.2.0 — native preview build ${{ github.run_number }}
           prerelease: true
           generate_release_notes: true
           files: installers/*

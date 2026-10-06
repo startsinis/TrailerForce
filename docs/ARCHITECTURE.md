@@ -1,10 +1,11 @@
 # Architecture
 
 - `Source/Core/Engine.*`: independent C++17 musical model, presets, brief parsing, deterministic MIDI composition, markers and advice. No JUCE dependency.
+- `Source/Core/Profiles.*`: sixteen musical profiles, pattern masks, harmonic rhythm, motif cells and research-linked production notes.
 - `Source/Core/MidiFile.cpp`: Standard MIDI File type 1 encoder, 960 PPQ, conductor track, tempo/meter/markers, note-on/off ordering and per-lane export.
 - `Source/Core/Sound.*`: bounded 96-voice procedural sketch synthesizer; six effect voices and offline WAV rendering.
 - `Source/Plugin/Processor.*`: JUCE format adapter, host transport scheduler, MIDI passthrough, instrument audio, state serialization and parameter automation.
-- `Source/Plugin/Editor.*`: native JUCE UI, seven workflow tabs, overview, native file drag/export and safe asynchronous file dialogs.
+- `Source/Plugin/Editor.*`: native JUCE UI, eight workflow tabs, overview, native file drag/export and safe asynchronous file dialogs.
 - `packaging`: macOS universal PKG and Windows x64 Inno Setup scripts.
 - `tests`: portable engine invariants and export/audio checks.
 
@@ -16,7 +17,7 @@ The synth voice pool is fixed. Host transport position determines sample-offset 
 
 ## Extension points
 
-Add a style through `preset`, add recognisers to `parseBrief`, add generators to `generate`, or replace the internal sketch synth without changing MIDI export. External articulation maps, MIDI learn, per-act lane overrides, swing grids, custom chord progressions, user preset files, audio analysis and cloud models are not implemented in 0.1.0. Do not expose these as active product features until real implementations exist.
+Add a style through `preset`, add recognisers to `parseBrief`, add generators to `generate`, or replace the internal sketch synth without changing MIDI export. External articulation maps, MIDI learn, per-act lane overrides, swing grids, custom chord progressions, user preset files, arbitrary user-entered chord progressions, audio analysis and cloud models are not implemented in 0.2.0. Do not expose these as active product features until real implementations exist.
 
 ## Formats
 
