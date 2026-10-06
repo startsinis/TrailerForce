@@ -12,7 +12,7 @@ for BUNDLE in "$ROOT/Library/Audio/Plug-Ins/VST3/Trailer Force.vst3" "$ROOT/Libr
   codesign --force --deep --sign - "$BUNDLE"
   codesign --verify --deep --strict "$BUNDLE"
   BIN=$(find "$BUNDLE/Contents/MacOS" -type f -print -quit)
-  lipo -verify_arch x86_64 arm64 "$BIN"
+  lipo "$BIN" -verify_arch x86_64 arm64
 done
 cp docs/USER-MANUAL.md "$ROOT/Library/Application Support/Vinci Sounds/Trailer Force/"
 cp packaging/Uninstall-TrailerForce.command "$ROOT/Library/Application Support/Vinci Sounds/Trailer Force/"

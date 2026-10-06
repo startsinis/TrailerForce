@@ -13,6 +13,8 @@ ctest --test-dir build -C Release --output-on-failure
 & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" packaging/windows.iss
 ```
 
+The Windows target statically links the MSVC runtime, so the installer does not require a separate Visual C++ redistributable.
+
 ## macOS universal
 
 ```sh
